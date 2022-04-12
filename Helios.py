@@ -6,13 +6,15 @@ import os
 import pyttsx3
 import webbrowser as wb
 from fuzzywuzzy import process
+from config import owm_token
+import requests
 
 config = {'names': [],
           'commands':
               {
                   'create_task': ['добавить задачу', 'список дел', 'задача'],
-                  'weather_report': ['веза репорт', 'прогноз погоды'],
-                  'close': ['захлопнись', 'закройся', 'брысь', 'завершить работу', 'выйти'],
+                  'weather_report': ['веза репорт', 'прогноз погоды', 'погода'],
+                  'close': ['захлопнись', 'закройся', 'брысь', 'завершить работу', 'выйти', 'досвидания', 'досвидос', 'пока'],
                   'restart_pc': ['перезагрузка', 'перезагрузить компьютер'],
                   'cancel_restart_pc': ['отмена перезагрузки', 'отменить перезагрузку'],
                   'shutdown_pc': ['выключение', 'выключить компьютер'],
@@ -20,7 +22,6 @@ config = {'names': [],
                   'browser': ['браузер', 'открыть браузер', 'поиск']
               }
           }
-
 
 class Helios():
     def __init__(self):
@@ -32,8 +33,6 @@ class Helios():
         # Выбор скорости произношения
         self.engine.setProperty('rate', 150)
         self.sr = speech_recognition.Recognizer()
-        # Как только интервал между словами будет составлять больше sr.pause_threshold, фраза будет считаться принятой
-        # self.sr.pause_threshold = 0.5
 
     # Распознование команды
     def hear(self):
@@ -58,9 +57,10 @@ class Helios():
     def create_task(self):
         self.talk('Что добавить в список дел?')
         task = self.hear()
-        with open('to-do_list.txt', 'a') as file:
-            file.write(f'- {task}\n')
-        self.talk(f'Задача {task} добавлена в список дел')
+        if task != None:
+            with open('to-do_list.txt', 'a') as file:
+                file.write(f'- {task}\n')
+            self.talk(f'Задача {task} добавлена в список дел')
 
 
     # Закрытие программы
@@ -106,6 +106,33 @@ class Helios():
         else:
             wb.open(f'https://yandex.ru/search/?text={query}')
 
+    # Получение прогноза погоды и подготовка сообщения
+    def get_weather(self, city, token):
+        r = requests.get(
+            f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={token}&lang=ru&units=metric')
+        data = r.json()
+
+        city_name = data['name']
+        weather_description = data['weather'][0]['description']
+        temp = data['main']['temp']
+        feels_like = data['main']['feels_like']
+        wind_speed = data['wind']['speed']
+        wind_gust = data['wind']['speed']
+
+        msg_to_say = f'Погода в городe {city_name}: {temp} градусов Цельсия, {weather_description}. ' \
+                     f'Ощущается как {feels_like}. Скорость ветра {wind_speed} метров в секунду, с порывами до {wind_gust} метров в секунду'
+
+        self.talk(msg_to_say)
+
+    # Определение города и запуск get_weather
     def weather_report(self):
-        pass
+        self.talk('Погода в каком городе Вас интересует?')
+        try:
+            city = self.hear()
+            if city != None:
+                self.get_weather(city, owm_token)
+        except Exception as e:
+            self.talk('Ошибка в прогнозе погоды')
+            print('Error ', e)
+
 

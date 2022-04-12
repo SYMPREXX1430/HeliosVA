@@ -23,12 +23,19 @@ def main():
                 engine.runAndWait()
 
                 query = sr.recognize_google(audio_data=audio, language='ru_RU').lower()
+
+                # Поиск наибольшего совпадения среди команд
+                match = {'command': '', 'percent': 0}
                 for k, v in config['commands'].items():
+                    # Для сравнения строки со строками из списка нахождения одного наиболее похожего запроса
                     fuzzy_comparison = process.extractOne(query, v)
-                    print(fuzzy_comparison)
-                    if fuzzy_comparison[1] >= 80:
-                        execute = getattr(va, k)
-                        execute()
+
+                    if fuzzy_comparison[1] > match['percent']:
+                        match['command'] = k
+                        match['percent'] = fuzzy_comparison[1]
+
+                execute = getattr(va, match['command'])
+                execute()
         except Exception as _ex:
             print(_ex, 'Команда не распознана')
             pass
