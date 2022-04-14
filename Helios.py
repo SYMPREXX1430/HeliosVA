@@ -9,11 +9,10 @@ from fuzzywuzzy import process
 from config import owm_token
 import requests
 
-config = {'names': [],
-          'commands':
+config = {'commands':
               {
                   'create_task': ['добавить задачу', 'список дел', 'задача'],
-                  'weather_report': ['веза репорт', 'прогноз погоды', 'погода'],
+                  'weather_report': ['прогноз погоды', 'погода'],
                   'close': ['захлопнись', 'закройся', 'брысь', 'завершить работу', 'выйти', 'досвидания', 'досвидос', 'пока'],
                   'restart_pc': ['перезагрузка', 'перезагрузить компьютер'],
                   'cancel_restart_pc': ['отмена перезагрузки', 'отменить перезагрузку'],
@@ -65,7 +64,7 @@ class Helios():
 
     # Закрытие программы
     def close(self):
-        self.talk('Я готов. Атакуйте мои системы, и вы понесете значительные потери.')
+        self.talk('До свидания.')
         sys.exit()
 
     # Перезагрузка ПК
