@@ -116,7 +116,7 @@ class Helios():
         temp = data['main']['temp']
         feels_like = data['main']['feels_like']
         wind_speed = data['wind']['speed']
-        wind_gust = data['wind']['speed']
+        wind_gust = data['wind']['gust']
 
         msg_to_say = f'Погода в городe {city_name}: {temp} градусов Цельсия, {weather_description}. ' \
                      f'Ощущается как {feels_like}. Скорость ветра {wind_speed} метров в секунду, с порывами до {wind_gust} метров в секунду'
